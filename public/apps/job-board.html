@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Board - Vagas e Candidaturas</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-job-board">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">💼</span>
+        <h1>Job Board</h1>
+      </div>
+      <p class="app-subtitle">Publique vagas e receba candidaturas</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Publicar Vaga</h2>
+        <form id="jobForm">
+          <div class="form-group">
+            <label for="title">Título da Vaga *</label>
+            <input type="text" id="title" required placeholder="Ex: Senior Full Stack Developer">
+          </div>
+          
+          <div class="form-group">
+            <label for="company">Empresa *</label>
+            <input type="text" id="company" required placeholder="Nome da empresa">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="location">Localização</label>
+              <input type="text" id="location" placeholder="Ex: Remote, São Paulo">
+            </div>
+
+            <div class="form-group">
+              <label for="type">Tipo</label>
+              <select id="type">
+                <option>Full-time</option>
+                <option>Part-time</option>
+                <option>Freelance</option>
+                <option>Contract</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="salary">Faixa Salarial</label>
+            <input type="text" id="salary" placeholder="Ex: R$ 8k - 12k">
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descrição</label>
+            <textarea id="description" rows="4" placeholder="Requisitos, responsabilidades..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">📤</span>
+            Publicar Vaga
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section">
+        <div class="output-header">
+          <h2>Vagas Ativas</h2>
+          <button onclick="loadJobs()" class="btn-secondary">🔄 Atualizar</button>
+        </div>
+        <div id="jobsList"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('jobForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('job-board', {
+          action: 'post',
+          job: {
+            title: document.getElementById('title').value,
+            company: document.getElementById('company').value,
+            location: document.getElementById('location').value,
+            type: document.getElementById('type').value,
+            salary: document.getElementById('salary').value,
+            description: document.getElementById('description').value
+          }
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Vaga publicada com sucesso!');
+          document.getElementById('jobForm').reset();
+          loadJobs();
+        } else {
+          showAlert(data.error || 'Erro ao publicar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    async function loadJobs() {
+      showLoading();
+      try {
+        const data = await apiCall('job-board', { action: 'list' });
+        hideLoading();
+        
+        if (data.ok && data.jobs.length > 0) {
+          document.getElementById('jobsList').innerHTML = data.jobs.map(job => `
+            <div class="list-item">
+              <h4>${job.title}</h4>
+              <p><strong>${job.company}</strong> • ${job.location} • ${job.type}</p>
+              ${job.salary ? `<p><span class="badge badge-success">💰 ${job.salary}</span></p>` : ''}
+              ${job.description ? `<p class="mt-12 muted">${job.description}</p>` : ''}
+              <button onclick="applyJob('${job.id}')" class="btn-secondary mt-12">Candidatar-se</button>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('jobsList').innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">💼</div>
+              <p>Nenhuma vaga publicada ainda</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro ao carregar vagas', 'error');
+      }
+    }
+
+    async function applyJob(jobId) {
+      const name = prompt('Seu nome:');
+      const email = prompt('Seu e-mail:');
+      if (!name || !email) return;
+
+      showLoading();
+      try {
+        const data = await apiCall('job-board', {
+          action: 'apply',
+          jobId,
+          application: { name, email, coverLetter: 'Candidate via Job Board' }
+        });
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Candidatura enviada!');
+        } else {
+          showAlert('Erro ao candidatar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    loadJobs();
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Pitch Deck</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-pitch-deck">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">📊</span>
+        <h1>Gerador de Pitch Deck</h1>
+      </div>
+      <p class="app-subtitle">Crie apresentações estruturadas para investidores com IA</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Informações do Negócio</h2>
+        <form id="pitchForm">
+          <div class="form-group">
+            <label for="problem">Qual problema você resolve? *</label>
+            <textarea id="problem" rows="3" required placeholder="Ex: Empresas B2B perdem 40% do tempo em processos manuais de onboarding"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="solution">Qual sua solução? *</label>
+            <textarea id="solution" rows="3" required placeholder="Ex: Plataforma SaaS que automatiza onboarding com IA e integra todos sistemas existentes"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="market">Mercado e oportunidade</label>
+            <textarea id="market" rows="2" placeholder="Ex: Mercado de $50B, crescimento 25% ao ano, foco inicial em fintechs"></textarea>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="traction">Tração atual</label>
+              <input type="text" id="traction" placeholder="Ex: 50 clientes, $100k MRR">
+            </div>
+
+            <div class="form-group">
+              <label for="ask">Raising</label>
+              <input type="text" id="ask" placeholder="Ex: Seed $2M">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">✨</span>
+            Gerar Pitch Deck com IA
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section" id="outputSection" class="hidden">
+        <div class="output-header">
+          <h2>Seu Pitch Deck</h2>
+          <div class="output-actions">
+            <button onclick="copyToClipboard()" class="btn-secondary">📋 Copiar</button>
+            <button onclick="downloadPDF()" class="btn-secondary">⬇️ Download</button>
+          </div>
+        </div>
+        <div id="output" class="output-content"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Gerando seu pitch deck...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('pitchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const input = `
+Problema: ${document.getElementById('problem').value}
+Solução: ${document.getElementById('solution').value}
+Mercado: ${document.getElementById('market').value || 'Não especificado'}
+Tração: ${document.getElementById('traction').value || 'Não especificado'}
+Raising: ${document.getElementById('ask').value || 'Não especificado'}
+      `;
+      
+      showLoading();
+      
+      try {
+        const response = await fetch('http://localhost:8790/apps/pitch-deck/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input })
+        });
+        
+        const data = await response.json();
+        hideLoading();
+        
+        if (data.ok) {
+          showOutput(data.output);
+        } else {
+          alert('Erro: ' + (data.error || 'Erro desconhecido'));
+        }
+      } catch (error) {
+        hideLoading();
+        alert('Erro de conexão: ' + error.message);
+      }
+    });
+
+    function showOutput(content) {
+      document.getElementById('outputSection').classList.remove('hidden');
+      document.getElementById('output').innerHTML = formatMarkdown(content);
+      document.getElementById('output').dataset.raw = content;
+    }
+
+    function formatMarkdown(text) {
+      return text
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function copyToClipboard() {
+      const text = document.getElementById('output').dataset.raw;
+      navigator.clipboard.writeText(text).then(() => {
+        showAlert ('Copiado para área de transferência!');
+      });
+    }
+
+    function downloadPDF() {
+      showAlert('Funcionalidade de download em breve!', 'info');
+    }
+  </script>
+</body>
+</html>

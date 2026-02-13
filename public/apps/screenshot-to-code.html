@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screenshot to Code</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-screenshot-to-code">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">🖼️</span>
+        <h1>Screenshot to Code</h1>
+      </div>
+      <p class="app-subtitle">Transforme designs em código React funcional</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <form id="appForm">
+          <div class="form-group">
+            <label for="input">Descreva o design que você quer</label>
+            <textarea id="input" rows="6" required placeholder="Ex: Landing page com header fixo (logo à esquerda, menu à direita), hero section com título grande e botão CTA azul, seção de 3 cards com ícones, footer escuro com links sociais"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">⚡</span>
+            Gerar Código React
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section hidden" id="outputSection">
+        <div class="output-header">
+          <h2>Código Gerado</h2>
+          <div class="output-actions">
+            <button onclick="copyCode()" class="btn-secondary">📋 Copiar Código</button>
+            <button onclick="openPreview()" class="btn-secondary">👁️ Preview</button>
+          </div>
+        </div>
+        <pre id="code" class="output-code"></pre>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Gerando código React...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    let generatedData = null;
+
+    document.getElementById('appForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('screenshot-to-code', {
+          input: document.getElementById('input').value
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          generatedData = data;
+          document.getElementById('outputSection').classList.remove('hidden');
+          document.getElementById('code').textContent = data.code || data.output;
+        } else {
+          showAlert(data.error || 'Erro ao gerar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    function copyCode() {
+      const code = document.getElementById('code').textContent;
+      navigator.clipboard.writeText(code).then(() => showAlert('Código copiado!'));
+    }
+
+    function openPreview() {
+      if (generatedData && generatedData.previewHtml) {
+        const win = window.open('', '_blank');
+        win.document.write(generatedData.previewHtml);
+        win.document.close();
+      } else {
+        showAlert('Preview não disponível', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

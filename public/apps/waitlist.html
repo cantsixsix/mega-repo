@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waitlist - Referral System</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-waitlist">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">📋</span>
+        <h1>Waitlist com Referral</h1>
+      </div>
+      <p class="app-subtitle">Crie sua lista de espera com sistema de indicações gamificado</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Entrar na Waitlist</h2>
+        <form id="subscribeForm">
+          <div class="form-group">
+            <label for="name">Nome Completo</label>
+            <input type="text" id="name" required placeholder="Seu nome">
+          </div>
+          
+          <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" required placeholder="seu@email.com">
+          </div>
+
+          <div class="form-group">
+            <label for="referralCode">Código de Indicação (opcional)</label>
+            <input type="text" id="referralCode" placeholder="Digite o código se foi indicado">
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">🚀</span>
+            Entrar na Lista
+          </button>
+        </form>
+
+        <hr class="divider">
+
+        <h2>Verificar Status</h2>
+        <form id="statusForm">
+          <div class="form-group">
+            <label for="checkEmail">Seu e-mail</label>
+            <input type="email" id="checkEmail" required placeholder="seu@email.com">
+          </div>
+          <button type="submit" class="btn-secondary full-width">
+            Verificar Posição
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section">
+        <div id="resultSection" class="hidden">
+          <div id="result"></div>
+        </div>
+
+        <div id="leaderboardSection">
+          <h2>🏆 Top Indicadores</h2>
+          <button onclick="loadLeaderboard()" class="btn-secondary mb-20">
+            Carregar Ranking
+          </button>
+          <div id="leaderboard"></div>
+        </div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('subscribeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('waitlist', {
+          action: 'subscribe',
+          email: document.getElementById('email').value,
+          name: document.getElementById('name').value,
+          referralCode: document.getElementById('referralCode').value || null
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          document.getElementById('resultSection').classList.remove('hidden');
+          document.getElementById('result').innerHTML = `
+            <div class="alert alert-success">
+              <h3>✅ Bem-vindo à lista!</h3>
+              <p><strong>Posição:</strong> #${data.position} de ${data.totalWaiting}</p>
+              <p><strong>Seu código de referral:</strong> <code class="inline-code">${data.referralCode}</code></p>
+              <p class="mt-12">Compartilhe seu código e suba posições na fila! Cada indicação te coloca 1 dia à frente.</p>
+            </div>
+          `;
+          document.getElementById('subscribeForm').reset();
+        } else {
+          showAlert(data.error || 'Erro ao cadastrar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    document.getElementById('statusForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('waitlist', {
+          action: 'status',
+          email: document.getElementById('checkEmail').value
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          document.getElementById('resultSection').classList.remove('hidden');
+          document.getElementById('result').innerHTML = `
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-value">#${data.position}</span>
+                <span class="stat-label">Sua Posição</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">${data.referrals || 0}</span>
+                <span class="stat-label">Indicações</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">${data.totalWaiting}</span>
+                <span class="stat-label">Total na Fila</span>
+              </div>
+            </div>
+            <p><strong>Seu código:</strong> <code class="inline-code">${data.subscriber.referralCode}</code></p>
+          `;
+        } else {
+          showAlert('E-mail não encontrado na lista', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    async function loadLeaderboard() {
+      showLoading();
+      try {
+        const data = await apiCall('waitlist', { action: 'leaderboard' });
+        hideLoading();
+        
+        if (data.ok && data.leaderboard.length > 0) {
+          document.getElementById('leaderboard').innerHTML = data.leaderboard.map((sub, i) => `
+            <div class="list-item">
+              <h4>${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`} ${sub.name}</h4>
+              <p>${sub.referrals || 0} indicações</p>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('leaderboard').innerHTML = '<div class="empty-state"><p>Nenhum dado ainda</p></div>';
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro ao carregar ranking', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

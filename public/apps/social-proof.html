@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Proof Generator</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-social-proof">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">🔔</span>
+        <h1>Social Proof Generator</h1>
+      </div>
+      <p class="app-subtitle">Gere notificações de social proof para aumentar conversões</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <form id="appForm">
+          <div class="form-group">
+            <label for="input">Informações sobre seu produto/serviço</label>
+            <textarea id="input" rows="6" required placeholder="Ex: SaaS de gestão de projetos com 15.000 usuários ativos, 98% uptime, crescimento de 200% este ano, premiado TechCrunch 2025, usado por 500+ empresas"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">🔔</span>
+            Gerar Notificações
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section hidden" id="outputSection">
+        <div class="output-header">
+          <h2>Mensagens de Social Proof</h2>
+          <button onclick="copyPopups()" class="btn-secondary">📋 Copiar Todas</button>
+        </div>
+        
+        <div id="popups" class="mb-20"></div>
+        
+        <h3 class="mt-20 section-title">🔧 Código Embed</h3>
+        <pre id="embed" class="output-code-sm"></pre>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Gerando notificações...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    let allPopups = [];
+
+    document.getElementById('appForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('social-proof', {
+          input: document.getElementById('input').value
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          document.getElementById('outputSection').classList.remove('hidden');
+          
+          // Popups
+          allPopups = data.popups || [];
+          if (allPopups.length > 0) {
+            document.getElementById('popups').innerHTML = allPopups.map((popup, i) => `
+              <div class="list-item popup-row">
+                <p class="popup-text">"${popup}"</p>
+                <button onclick="testPopup(${i})" class="btn-secondary">👁️ Testar</button>
+              </div>
+            `).join('');
+          }
+          
+          // Embed code
+          if (data.embedSnippet) {
+            document.getElementById('embed').textContent = data.embedSnippet;
+          }
+        } else {
+          showAlert(data.error || 'Erro ao gerar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    function testPopup(index) {
+      const popup = allPopups[index];
+      const div = document.createElement('div');
+      div.className = 'popup-preview';
+      div.innerHTML = `<p>${popup}</p>`;
+      document.body.appendChild(div);
+      
+      setTimeout(() => {
+        div.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => div.remove(), 300);
+      }, 4000);
+    }
+
+    function copyPopups() {
+      const text = allPopups.join('\n');
+      navigator.clipboard.writeText(text).then(() => showAlert('Notificações copiadas!'));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio de 20 SaaS Apps - Test Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { color: #60a5fa; margin-bottom: 30px; text-align: center; }
+    .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+    .card { background: #1e293b; padding: 20px; border-radius: 8px; border-left: 4px solid #60a5fa; }
+    .card h3 { color: #93c5fd; margin-bottom: 10px; }
+    .card p { font-size: 14px; color: #cbd5e1; margin-bottom: 15px; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 8px; }
+    .badge.ai { background: #22c55e; color: black; }
+    .badge.crud { background: #eab308; color: black; }
+    .badge.hybrid { background: #a855f7; color: white; }
+    button { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 10px; }
+    button:hover { background: #2563eb; }
+    .result { margin-top: 15px; padding: 10px; background: #334155; border-radius: 4px; font-size: 12px; max-height: 300px; overflow-y: auto; }
+    .status { margin-top: 20px; text-align: center; padding: 15px; background: #1e293b; border-radius: 8px; }
+    .status.online { border-left: 4px solid #22c55e; }
+    .status.offline { border-left: 4px solid #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Portfolio de 20 SaaS Apps - Test Dashboard</h1>
+    
+    <div class="status" id="status">
+      <p>Verificando status dos serviços...</p>
+    </div>
+
+    <div class="services" id="apps-container"></div>
+  </div>
+
+  <script>
+   const GATEWAY_URL = 'http://localhost:8787';
+    const HUB_URL = 'http://localhost:8790';
+
+    const testCases = {
+      'waitlist': { action: 'subscribe', email: 'test@example.com', name: 'Test User' },
+      'job-board': { action: 'post', job: { title: 'Developer', company: 'TechCo', location: 'Remote' } },
+      'testimonials': { action: 'submit', testimonial: { author: 'John', company: 'ACME', text: 'Great!', rating: 5 } },
+      'client-portal': { action: 'create-project', project: { name: 'Project Alpha', client: 'ClientCo' } },
+      'sub-box': { action: 'list-plans' },
+      'notion-blog': {action: 'create-post', post: { title: 'Hello World', content: 'Test content', slug: 'hello' } },
+      'analytics': { action: 'track', siteId: 'demo', event: { page: '/', device: 'desktop' } },
+      'uptime': { action: 'add-monitor', monitor: { url: 'https://example.com', name: 'Example' } },
+      'resume': { input: 'Senior Full Stack Developer, 5 years Node.js/React' },
+      'esg': { input: 'Tech startup seeking ESG metrics template' },
+      'pitch-deck': { input: 'AI-powered analytics platform for e-commerce' },
+      'cold-email': { input: 'Prospect: Marketing Director at SaaS company. Selling automation tools.' },
+      'screenshot-to-code': { input: 'Create a landing page with hero section, 3 feature cards, and CTA button' },
+      'brand-kit': { input: 'Modern fintech startup focused on SMB lending' },
+      'proposals': { input: 'Website redesign for e-commerce client, 8-week timeline, $15k budget' },
+      'meeting-notes': { input: 'Sales call discussing Q1 expansion, client needs reporting dashboard by March' },
+      'changelog': { input: 'v2.1.0: Added dark mode, Fixed login bug, Improved load time by 40%' },
+      'podcast': { input: '[00:00] Intro [05:30] Guest interview [25:00] Q&A [40:00] Outro. Topic: Future of AI' },
+      'social-proof': { input: 'SaaS product with 10k users, 98% uptime, featured in TechCrunch' },
+      'price-monitor': { prices: [{name: 'Competitor A', price: 49}, {name: 'Competitor B', price: 79}] }
+    };
+
+    async function checkServices() {
+      const statusEl = document.getElementById('status');
+      try {
+        const [gateway, hub] = await Promise.all([
+          fetch(`${GATEWAY_URL}/health`).then(r => r.json()),
+          fetch(`${HUB_URL}/health`).then(r => r.json())
+        ]);
+       
+        statusEl.className = 'status online';
+        statusEl.innerHTML = `<p>✅ <strong>AI Gateway:</strong> ${gateway.service} | <strong>App Hub:</strong> ${hub.service} (${hub.apps || 20} apps)</p>`;
+        loadApps();
+      } catch (err) {
+        statusEl.className = 'status offline';
+        statusEl.innerHTML = `<p>❌ <strong>Error:</strong> ${err.message}. Certifique-se de que os serviços estão rodando.</p>`;
+      }
+    }
+
+    async function loadApps() {
+      try {
+        const response = await fetch(`${HUB_URL}/apps`);
+        const data = await response.json();
+        const container = document.getElementById('apps-container');
+        container.innerHTML = '';
+
+        data.apps.forEach(app => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          
+          const badge = app.requiresAI ? 'ai' : 'crud';
+          const badgeText = app.requiresAI ? 'AI' : 'RULE-BASED';
+          
+          card.innerHTML = `
+            <h3>${app.name}</h3>
+            <span class="badge ${badge}">${badgeText}</span>
+            <p>${app.description || 'No description available'}</p>
+            <button onclick="testApp('${app.slug}')">Testar ${app.slug}</button>
+            <div class="result" id="result-${app.slug}" style="display:none;"></div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error('Failed to load apps:', err);
+      }
+    }
+
+    async function testApp(slug) {
+      const resultEl = document.getElementById(`result-${slug}`);
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = '<em>Enviando requisição...</em>';
+
+      try {
+        const body = testCases[slug] || { input: `Test input for ${slug}` };
+        const response = await fetch(`${HUB_URL}/apps/${slug}/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+        resultEl.innerHTML = `<strong>Status:</strong> ${response.status}<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        resultEl.innerHTML = `<strong>Error:</strong> ${err.message}`;
+      }
+    }
+
+    window.testApp = testApp;
+    checkServices();
+  </script>
+</body>
+</html>

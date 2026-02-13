@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Currículos - AI Powered</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-resume">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">📄</span>
+        <h1>Gerador de Currículos</h1>
+      </div>
+      <p class="app-subtitle">Crie currículos profissionais otimizados para ATS em segundos</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Informações Profissionais</h2>
+        <form id="resumeForm">
+          <div class="form-group">
+            <label for="experience">Experiência Profissional</label>
+            <textarea 
+              id="experience" 
+              rows="6" 
+              placeholder="Ex: Senior Full Stack Developer com 5 anos de experiência em Node.js, React, microservices e cloud AWS. Liderou equipe de 4 desenvolvedores no projeto XYZ..."
+            ></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="skills">Skills-chave (separadas por vírgula)</label>
+            <input 
+              type="text" 
+              id="skills" 
+              placeholder="JavaScript, React, Node.js, AWS, Docker, MongoDB"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="education">Formação</label>
+            <input 
+              type="text" 
+              id="education" 
+              placeholder="Ex: Bacharelado em Ciência da Computação - USP (2018)"
+            />
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">✨</span>
+            Gerar Currículo com IA
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section" id="outputSection" class="hidden">
+        <div class="output-header">
+          <h2>Seu Currículo</h2>
+          <div class="output-actions">
+            <button onclick="copyToClipboard()" class="btn-secondary">📋 Copiar</button>
+            <button onclick="downloadPDF()" class="btn-secondary">⬇️ Download</button>
+          </div>
+        </div>
+        <div id="output" class="output-content"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Gerando seu currículo profissional...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('resumeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const experience = document.getElementById('experience').value;
+      const skills = document.getElementById('skills').value;
+      const education = document.getElementById('education').value;
+      
+      const input = `${experience}\n\nSkills: ${skills}\n\nEducação: ${education}`;
+      
+      showLoading();
+      
+      try {
+        const response = await fetch('http://localhost:8790/apps/resume/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input })
+        });
+        
+        const data = await response.json();
+        hideLoading();
+        
+        if (data.ok) {
+          showOutput(data.output);
+        } else {
+          alert('Erro: ' + (data.error || 'Erro desconhecido'));
+        }
+      } catch (error) {
+        hideLoading();
+        alert('Erro de conexão: ' + error.message);
+      }
+    });
+
+    function showOutput(content) {
+      document.getElementById('outputSection').classList.remove('hidden');
+      document.getElementById('output').innerHTML = formatMarkdown(content);
+      document.getElementById('output').dataset.raw = content;
+    }
+
+    function formatMarkdown(text) {
+      return text
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function copyToClipboard() {
+      const text = document.getElementById('output').dataset.raw;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copiado para área de transferência!');
+      });
+    }
+
+    function downloadPDF() {
+      alert('Funcionalidade de download será implementada em breve!');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uptime Monitor - 24/7 Monitoring</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-uptime">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">🔍</span>
+        <h1>Uptime Monitor</h1>
+      </div>
+      <p class="app-subtitle">Monitore a disponibilidade de seus serviços 24/7</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Adicionar Monitor</h2>
+        <form id="monitorForm">
+          <div class="form-group">
+            <label for="name">Nome do Serviço *</label>
+            <input type="text" id="name" required placeholder="Ex: API Production">
+          </div>
+          
+          <div class="form-group">
+            <label for="url">URL *</label>
+            <input type="url" id="url" required placeholder="https://api.exemplo.com/health">
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">➕</span>
+            Adicionar Monitor
+          </button>
+        </form>
+
+        <hr class="divider">
+
+        <h2>Status Page</h2>
+        <button onclick="viewStatusPage()" class="btn-secondary full-width">
+          📊 Ver Status Page
+        </button>
+      </div>
+
+      <div class="output-section">
+        <div class="output-header">
+          <h2>Monitores Ativos</h2>
+          <button onclick="loadMonitors()" class="btn-secondary">🔄 Atualizar</button>
+        </div>
+        <div id="monitorsList"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('monitorForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('uptime', {
+          action: 'add-monitor',
+          monitor: {
+            name: document.getElementById('name').value,
+            url: document.getElementById('url').value
+          }
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Monitor adicionado!');
+          document.getElementById('monitorForm').reset();
+          loadMonitors();
+        } else {
+          showAlert(data.error || 'Erro ao adicionar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    async function loadMonitors() {
+      showLoading();
+      try {
+        const data = await apiCall('uptime', { action: 'list-monitors' });
+        hideLoading();
+        
+        if (data.ok && data.monitors.length > 0) {
+          document.getElementById('monitorsList').innerHTML = data.monitors.map(m => {
+            const statusColor = m.status === 'up' ? '#22c55e' : m.status === 'down' ? '#ef4444' : '#94a3b8';
+            const statusIcon = m.status === 'up' ? '✅' : m.status === 'down' ? '❌' : '⏳';
+            
+            return `
+              <div class="list-item" style="border-left-color: ${statusColor};">
+                <div class="row-between mb-12">
+                  <h4>${statusIcon} ${m.name}</h4>
+                  <span class="badge badge-${m.status === 'up' ? 'success' : 'error'}">${m.status?.toUpperCase() || 'UNKNOWN'}</span>
+                </div>
+                <p class="muted" style="word-break: break-all;">${m.url}</p>
+                <p><strong>Checks:</strong> ${m.checks?.length || 0} | <strong>Incidents:</strong> ${m.incidents?.length || 0}</p>
+                <div class="row-actions">
+                  <button onclick="checkMonitor('${m.id}')" class="btn-secondary">🔄 Checar Agora</button>
+                  <button onclick="diagnoseMonitor('${m.id}')" class="btn-secondary">🤖 Diagnóstico IA</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          document.getElementById('monitorsList').innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🔍</div>
+              <p>Nenhum monitor configurado</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro ao carregar monitores', 'error');
+      }
+    }
+
+    async function checkMonitor(id) {
+      showLoading();
+      try {
+        const data = await apiCall('uptime', { action: 'check', monitorId: id });
+        hideLoading();
+        
+        if (data.ok) {
+          const statusText = data.currentStatus === 'up' ? '✅ Site está UP' : '❌ Site está DOWN';
+          const statusType = data.currentStatus === 'up' ? 'success' : 'error';
+          showAlert(`${statusText} (${data.check.responseTime}ms)`, statusType);
+          loadMonitors();
+        } else {
+          showAlert('Erro ao checar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    async function diagnoseMonitor(id) {
+      showLoading();
+      try {
+        const data = await apiCall('uptime', { action: 'diagnose', monitorId: id });
+        hideLoading();
+        
+        if (data.ok) {
+          alert(`🤖 Diagnóstico IA:\n\n${data.diagnosis}`);
+        } else {
+          showAlert('Erro ao diagnosticar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    async function viewStatusPage() {
+      showLoading();
+      try {
+        const data = await apiCall('uptime', { action: 'status-page' });
+        hideLoading();
+        
+        if (data.ok) {
+          const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title>Status Page</title>
+              <style>
+                body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+                h1 { text-align: center; }
+                .service { background: #f8fafc; padding: 20px; margin: 15px 0; border-radius: 8px; border-left: 4px solid #22c55e; }
+                .service.down { border-left-color: #ef4444; }
+                .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+                .status.up { background: #dcfce7; color: #166534; }
+                .status.down { background: #fee2e2; color: #991b1b; }
+              </style>
+            </head>
+            <body>
+              <h1>🔍 Status Page</h1>
+              ${data.statusPage.map(s => `
+                <div class="service ${s.status}">
+                  <h3>${s.name} <span class="status ${s.status}">${s.status?.toUpperCase()}</span></h3>
+                  <p>${s.url}</p>
+                  <p><strong>Uptime:</strong> ${s.uptime}</p>
+                </div>
+              `).join('')}
+            </body>
+            </html>
+          `;
+          const win = window.open('', '_blank');
+          win.document.write(html);
+          win.document.close();
+        } else {
+          showAlert('Erro ao gerar status page', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    loadMonitors();
+  </script>
+</body>
+</html>

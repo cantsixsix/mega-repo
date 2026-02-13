@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testimonials - Wall of Love</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-testimonials">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">⭐</span>
+        <h1>Testimonials</h1>
+      </div>
+      <p class="app-subtitle">Colete e exiba depoimentos de clientes</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Enviar Depoimento</h2>
+        <form id="testimonialForm">
+          <div class="form-group">
+            <label for="author">Seu Nome *</label>
+            <input type="text" id="author" required placeholder="Seu nome completo">
+          </div>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="role">Cargo</label>
+              <input type="text" id="role" placeholder="Ex: CEO">
+            </div>
+
+            <div class="form-group">
+              <label for="company">Empresa</label>
+              <input type="text" id="company" placeholder="Nome da empresa">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="text">Depoimento *</label>
+            <textarea id="text" rows="5" required placeholder="Compartilhe sua experiência..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="rating">Avaliação</label>
+            <select id="rating">
+              <option value="5">⭐⭐⭐⭐⭐ (5 estrelas)</option>
+              <option value="4">⭐⭐⭐⭐ (4 estrelas)</option>
+              <option value="3">⭐⭐⭐ (3 estrelas)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">📤</span>
+            Enviar Depoimento
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section">
+        <div class="output-header">
+          <h2>Depoimentos</h2>
+          <div class="output-actions">
+            <button onclick="loadTestimonials('pending')" class="btn-secondary">⏳ Pendentes</button>
+            <button onclick="loadTestimonials('approved')" class="btn-secondary">✅ Aprovados</button>
+            <button onclick="generateWall()" class="btn-secondary">🎨 Gerar Wall</button>
+          </div>
+        </div>
+        <div id="testimonialsList"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('testimonials', {
+          action: 'submit',
+          testimonial: {
+            author: document.getElementById('author').value,
+            role: document.getElementById('role').value,
+            company: document.getElementById('company').value,
+            text: document.getElementById('text').value,
+            rating: parseInt(document.getElementById('rating').value)
+          }
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Depoimento enviado! Aguardando aprovação.');
+          document.getElementById('testimonialForm').reset();
+          loadTestimonials('pending');
+        } else {
+          showAlert(data.error || 'Erro ao enviar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    async function loadTestimonials(status = 'pending') {
+      showLoading();
+      try {
+        const data = await apiCall('testimonials', { action: 'list', status });
+        hideLoading();
+        
+        if (data.ok && data.testimonials.length > 0) {
+          document.getElementById('testimonialsList').innerHTML = data.testimonials.map(t => `
+            <div class="list-item">
+<div class="row-between">
+                <div>
+                  <h4>${t.author}</h4>
+                  <p>${t.role || ''} ${t.role && t.company ? '•' : ''} ${t.company || ''}</p>
+                  <p class="mt-12 text-italic">"​${t.text}"</p>
+                  <p class="mt-8">${'⭐'.repeat(t.rating || 5)}</p>
+                </div>
+                ${status === 'pending' ? `
+                  <button onclick="approveTestimonial('${t.id}')" class="btn-secondary">✅ Aprovar</button>
+                ` : ''}
+              </div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('testimonialsList').innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">⭐</div>
+              <p>Nenhum depoimento ${status === 'approved' ? 'aprovado' : 'pendente'}</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro ao carregar depoimentos', 'error');
+      }
+    }
+
+    async function approveTestimonial(id) {
+      showLoading();
+      try {
+        const data = await apiCall('testimonials', { action: 'approve', testimonialId: id });
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Depoimento aprovado!');
+          loadTestimonials('pending');
+        } else {
+          showAlert('Erro ao aprovar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    async function generateWall() {
+      showLoading();
+      try {
+        const data = await apiCall('testimonials', { action: 'wall' });
+        hideLoading();
+        
+        if (data.ok) {
+          const win = window.open('', '_blank');
+          win.document.write(data.wallHtml);
+          win.document.close();
+        } else {
+          showAlert('Erro ao gerar wall', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    loadTestimonials('pending');
+  </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-client-portal">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">👥</span>
+        <h1>Client Portal</h1>
+      </div>
+      <p class="app-subtitle">Gerencie projetos e comunicação com clientes</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Novo Projeto</h2>
+        <form id="projectForm">
+          <div class="form-group">
+            <label for="name">Nome do Projeto *</label>
+            <input type="text" id="name" required placeholder="Projeto Alpha">
+          </div>
+          
+          <div class="form-group">
+            <label for="client">Cliente *</label>
+            <input type="text" id="client" required placeholder="Nome do cliente">
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descrição</label>
+            <textarea id="description" rows="3" placeholder="Descrição do projeto"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">➕</span>
+            Criar Projeto
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section">
+        <div class="output-header">
+          <h2>Projetos</h2>
+          <button onclick="loadProjects()" class="btn-secondary">🔄 Atualizar</button>
+        </div>
+        <div id="projectsList"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('client-portal', {
+          action: 'create-project',
+          project: {
+            name: document.getElementById('name').value,
+            client: document.getElementById('client').value,
+            description: document.getElementById('description').value
+          }
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Projeto criado!');
+          document.getElementById('projectForm').reset();
+          loadProjects();
+        } else {
+          showAlert(data.error || 'Erro', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    async function loadProjects() {
+      showLoading();
+      try {
+        const data = await apiCall('client-portal', { action: 'list-projects' });
+        hideLoading();
+        
+        if (data.ok && data.projects.length > 0) {
+          document.getElementById('projectsList').innerHTML = data.projects.map(p => `
+            <div class="list-item">
+              <div class="row-between">
+                <div>
+                  <h4>${p.name}</h4>
+                  <p><strong>Cliente:</strong> ${p.client}</p>
+                  ${p.description ? `<p class="mt-8 muted">${p.description}</p>` : ''}
+                  <p class="mt-8"><span class="badge badge-info">${p.status}</span></p>
+                </div>
+              </div>
+              <div class="row-actions">
+                <button onclick="updateStatus('${p.id}', 'concluído')" class="btn-secondary">✅ Concluir</button>
+                <button onclick="addMessage('${p.id}')" class="btn-secondary">💬 Mensagem</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('projectsList').innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">👥</div>
+              <p>Nenhum projeto criado</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro ao carregar', 'error');
+      }
+    }
+
+    async function updateStatus(id, status) {
+      showLoading();
+      try {
+        const data = await apiCall('client-portal', {
+          action: 'update-status',
+          projectId: id,
+          status
+        });
+        hideLoading();
+        if (data.ok) {
+          showAlert('Status atualizado!');
+          loadProjects();
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro', 'error');
+      }
+    }
+
+    async function addMessage(id) {
+      const content = prompt('Mensagem:');
+      if (!content) return;
+      
+      showLoading();
+      try {
+        const data = await apiCall('client-portal', {
+          action: 'add-message',
+          projectId: id,
+          message: { from: 'Admin', content }
+        });
+        hideLoading();
+        if (data.ok) showAlert('Mensagem adicionada!');
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro', 'error');
+      }
+    }
+
+    loadProjects();
+  </script>
+</body>
+</html>

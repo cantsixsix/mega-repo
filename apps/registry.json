@@ -1,0 +1,22 @@
+[
+  { "id": 1, "slug": "screenshot-to-code", "status": "scaffolded", "env": "apps/screenshot-to-code/.env.example" },
+  { "id": 2, "slug": "cold-email", "status": "scaffolded", "env": "apps/cold-email/.env.example" },
+  { "id": 3, "slug": "testimonials", "status": "scaffolded", "env": "apps/testimonials/.env.example" },
+  { "id": 4, "slug": "proposals", "status": "scaffolded", "env": "apps/proposals/.env.example" },
+  { "id": 5, "slug": "job-board", "status": "scaffolded", "env": "apps/job-board/.env.example" },
+  { "id": 6, "slug": "changelog", "status": "scaffolded", "env": "apps/changelog/.env.example" },
+  { "id": 7, "slug": "analytics", "status": "scaffolded", "env": "apps/analytics/.env.example" },
+  { "id": 8, "slug": "meeting-notes", "status": "scaffolded", "env": "apps/meeting-notes/.env.example" },
+  { "id": 9, "slug": "waitlist", "status": "scaffolded", "env": "apps/waitlist/.env.example" },
+  { "id": 10, "slug": "brand-kit", "status": "scaffolded", "env": "apps/brand-kit/.env.example" },
+  { "id": 11, "slug": "client-portal", "status": "scaffolded", "env": "apps/client-portal/.env.example" },
+  { "id": 12, "slug": "social-proof", "status": "scaffolded", "env": "apps/social-proof/.env.example" },
+  { "id": 13, "slug": "sub-box", "status": "scaffolded", "env": "apps/sub-box/.env.example" },
+  { "id": 14, "slug": "resume", "status": "scaffolded", "env": "apps/resume/.env.example" },
+  { "id": 15, "slug": "esg", "status": "scaffolded", "env": "apps/esg/.env.example" },
+  { "id": 16, "slug": "podcast", "status": "scaffolded", "env": "apps/podcast/.env.example" },
+  { "id": 17, "slug": "notion-blog", "status": "scaffolded", "env": "apps/notion-blog/.env.example" },
+  { "id": 18, "slug": "price-monitor", "status": "scaffolded", "env": "apps/price-monitor/.env.example" },
+  { "id": 19, "slug": "uptime", "status": "scaffolded", "env": "apps/uptime/.env.example" },
+  { "id": 20, "slug": "pitch-deck", "status": "scaffolded", "env": "apps/pitch-deck/.env.example" }
+]

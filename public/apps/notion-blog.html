@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog CMS - Notion-style</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-notion-blog">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">✍️</span>
+        <h1>Blog CMS</h1>
+      </div>
+      <p class="app-subtitle">Sistema de gerenciamento de blog com SEO</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Novo Post</h2>
+        <form id="postForm">
+          <div class="form-group">
+            <label for="title">Título *</label>
+            <input type="text" id="title" required placeholder="Título do post">
+          </div>
+          
+          <div class="form-group">
+            <label for="slug">Slug (URL) *</label>
+            <input type="text" id="slug" required placeholder="meu-post-incrivel">
+          </div>
+
+          <div class="form-group">
+            <label for="content">Conteúdo *</label>
+            <textarea id="content" rows="10" required placeholder="Escreva o conteúdo do post em Markdown..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="tags">Tags (separadas por vírgula)</label>
+            <input type="text" id="tags" placeholder="javascript, react, tutorial">
+          </div>
+
+          <div class="form-group">
+            <label for="metaDescription">Meta Description (SEO)</label>
+            <input type="text" id="metaDescription" maxlength="160" placeholder="Descrição para SEO (máx 160 caracteres)">
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">💾</span>
+            Salvar Rascunho
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section">
+        <div class="output-header">
+          <h2>Posts Publicados</h2>
+          <button onclick="loadPosts()" class="btn-secondary">🔄 Atualizar</button>
+        </div>
+        <div id="postsList"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    // Auto-generate slug from title
+    document.getElementById('title').addEventListener('input', (e) => {
+      const slug = e.target.value
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      document.getElementById('slug').value = slug;
+    });
+
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const tags = document.getElementById('tags').value.split(',').map(t => t.trim()).filter(Boolean);
+        
+        const data = await apiCall('notion-blog', {
+          action: 'create-post',
+          post: {
+            title: document.getElementById('title').value,
+            slug: document.getElementById('slug').value,
+            content: document.getElementById('content').value,
+            tags,
+            metaDescription: document.getElementById('metaDescription').value
+          }
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Post salvo como rascunho!');
+          document.getElementById('postForm').reset();
+          loadPosts();
+        } else {
+          showAlert(data.error || 'Erro ao salvar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    async function loadPosts() {
+      showLoading();
+      try {
+        const data = await apiCall('notion-blog', { action: 'list-posts' });
+        hideLoading();
+        
+        if (data.ok && data.posts.length > 0) {
+          document.getElementById('postsList').innerHTML = data.posts.map(post => `
+            <div class="list-item">
+              <div class="row-between mb-12">
+                <div>
+                  <h4>${post.title}</h4>
+                  <p class="muted text-sm">/${post.slug}</p>
+                </div>
+                <span class="badge badge-${post.published ? 'success' : 'warning'}">
+                  ${post.published ? '✅ Publicado' : '📝 Rascunho'}
+                </span>
+              </div>
+              ${post.tags && post.tags.length > 0 ? `
+                <p>${post.tags.map(tag => `<span class="badge badge-info">${tag}</span>`).join(' ')}</p>
+              ` : ''}
+              <div class="row-actions">
+                <button onclick="viewPost('${post.id}')" class="btn-secondary">👁️ Ver</button>
+                <button onclick="publishPost('${post.id}')" class="btn-secondary">🚀 Publicar</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('postsList').innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">✍️</div>
+              <p>Nenhum post criado ainda</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro ao carregar posts', 'error');
+      }
+    }
+
+    async function viewPost(id) {
+      showLoading();
+      try {
+        const data = await apiCall('notion-blog', { action: 'get-post', postId: id });
+        hideLoading();
+        
+        if (data.ok) {
+          const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title>${data.post.title}</title>
+              <style>
+                body { font-family: Georgia, serif; max-width: 700px; margin: 50px auto; padding: 20px; line-height: 1.8; }
+                h1 { font-size: 2.5rem; margin-bottom: 10px; }
+                .meta { color: #666; margin-bottom: 30px; }
+                .tag { background: #f0f0f0; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 5px; }
+              </style>
+            </head>
+            <body>
+              <h1>${data.post.title}</h1>
+              <div class="meta">
+                ${data.post.tags ? data.post.tags.map(t => `<span class="tag">${t}</span>`).join('') : ''}
+              </div>
+              <div>${data.post.content.replace(/\n/g, '<br>')}</div>
+            </body>
+            </html>
+          `;
+          const win = window.open('', '_blank');
+          win.document.write(html);
+          win.document.close();
+        } else {
+          showAlert('Post não encontrado', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    async function publishPost(id) {
+      showLoading();
+      try {
+        const data = await apiCall('notion-blog', {
+          action: 'update-post',
+          postId: id,
+          updates: { published: true }
+        });
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Post publicado!');
+          loadPosts();
+        } else {
+          showAlert('Erro ao publicar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>

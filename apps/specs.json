@@ -1,0 +1,222 @@
+[
+  {
+    "id": 1,
+    "slug": "screenshot-to-code",
+    "name": "AI Screenshot-to-Code Landing Page Builder",
+    "summary": "Converte screenshot em seção de landing page com código React/HTML/CSS editável.",
+    "mvpFeatures": ["upload de imagem", "gerar código", "preview", "exportar zip"],
+    "integrations": ["ai-gateway", "storage"],
+    "requiresAI": true,
+    "promptTemplate": "Converta a descrição abaixo em uma seção de landing page React com CSS simples e responsiva:\n{{input}}",
+    "coreEndpoints": ["POST /apps/screenshot-to-code/run", "GET /apps/screenshot-to-code"]
+  },
+  {
+    "id": 2,
+    "slug": "cold-email",
+    "name": "AI Cold Email Writer + Deliverability Checker",
+    "summary": "Gera cold emails por ICP e retorna checklist básico de entregabilidade.",
+    "mvpFeatures": ["gerar email", "variações A/B", "score de spam", "check SPF/DKIM checklist"],
+    "integrations": ["ai-gateway", "email"],
+    "requiresAI": true,
+    "promptTemplate": "Crie 3 cold emails curtos para este cenário e inclua assunto + CTA:\n{{input}}",
+    "coreEndpoints": ["POST /apps/cold-email/run", "GET /apps/cold-email"]
+  },
+  {
+    "id": 3,
+    "slug": "testimonials",
+    "name": "Testimonial Video Collector + Wall",
+    "summary": "Coleta depoimentos e gera highlights em texto para publicar na wall.",
+    "mvpFeatures": ["criar link de coleta", "registrar depoimento", "aprovar", "embed wall"],
+    "integrations": ["storage", "ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Resuma o depoimento em 2 frases e extraia 1 quote forte:\n{{input}}",
+    "coreEndpoints": ["POST /apps/testimonials/run", "GET /apps/testimonials"]
+  },
+  {
+    "id": 4,
+    "slug": "proposals",
+    "name": "AI Proposal/Invoice Generator",
+    "summary": "Transforma briefing em proposta comercial com escopo, prazo e preço.",
+    "mvpFeatures": ["gerar proposta", "gerar invoice", "exportar PDF", "templates"],
+    "integrations": ["ai-gateway", "stripe"],
+    "requiresAI": true,
+    "promptTemplate": "Gere proposta profissional com escopo, cronograma e preço com base em:\n{{input}}",
+    "coreEndpoints": ["POST /apps/proposals/run", "GET /apps/proposals"]
+  },
+  {
+    "id": 5,
+    "slug": "job-board",
+    "name": "Niche Job Board Builder",
+    "summary": "Cria job board de nicho com publicação de vagas e monetização.",
+    "mvpFeatures": ["criar board", "publicar vaga", "checkout", "página pública"],
+    "integrations": ["stripe", "database"],
+    "requiresAI": false,
+    "promptTemplate": "",
+    "coreEndpoints": ["POST /apps/job-board/run", "GET /apps/job-board"]
+  },
+  {
+    "id": 6,
+    "slug": "changelog",
+    "name": "AI Changelog + Release Notes",
+    "summary": "Gera release notes automáticas com base em commits/PRs.",
+    "mvpFeatures": ["importar commits", "gerar changelog", "publicar feed", "enviar email"],
+    "integrations": ["github", "ai-gateway", "email"],
+    "requiresAI": true,
+    "promptTemplate": "Gere release notes curtas e organizadas a partir destas mudanças:\n{{input}}",
+    "coreEndpoints": ["POST /apps/changelog/run", "GET /apps/changelog"]
+  },
+  {
+    "id": 7,
+    "slug": "analytics",
+    "name": "Cookie-Less Analytics Dashboard",
+    "summary": "Dashboard de métricas sem cookies com insights automáticos.",
+    "mvpFeatures": ["captura pageview", "dashboards", "top pages", "insights"],
+    "integrations": ["database", "ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Analise estas métricas e dê 3 insights acionáveis:\n{{input}}",
+    "coreEndpoints": ["POST /apps/analytics/run", "GET /apps/analytics"]
+  },
+  {
+    "id": 8,
+    "slug": "meeting-notes",
+    "name": "AI Meeting Notes (Nicho)",
+    "summary": "Resumos de reunião com output por vertical (vendas, medicina, legal).",
+    "mvpFeatures": ["receber transcrição", "resumir", "action items", "template por nicho"],
+    "integrations": ["deepgram", "ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Resuma esta reunião em formato objetivo com próximas ações:\n{{input}}",
+    "coreEndpoints": ["POST /apps/meeting-notes/run", "GET /apps/meeting-notes"]
+  },
+  {
+    "id": 9,
+    "slug": "waitlist",
+    "name": "Waitlist + Launch Page Builder",
+    "summary": "Cria waitlist com referral e analytics básico.",
+    "mvpFeatures": ["capturar leads", "código referral", "ranking", "widget embed"],
+    "integrations": ["database", "email"],
+    "requiresAI": false,
+    "promptTemplate": "",
+    "coreEndpoints": ["POST /apps/waitlist/run", "GET /apps/waitlist"]
+  },
+  {
+    "id": 10,
+    "slug": "brand-kit",
+    "name": "AI Brand Kit Generator",
+    "summary": "Gera guia de marca com posicionamento, tom e paleta sugerida.",
+    "mvpFeatures": ["briefing", "guia de marca", "paleta", "export PDF"],
+    "integrations": ["ai-gateway", "image-api"],
+    "requiresAI": true,
+    "promptTemplate": "Crie um brand kit textual com voz, paleta e diretrizes para:\n{{input}}",
+    "coreEndpoints": ["POST /apps/brand-kit/run", "GET /apps/brand-kit"]
+  },
+  {
+    "id": 11,
+    "slug": "client-portal",
+    "name": "Client Portal",
+    "summary": "Portal de clientes com entregas, mensagens e status.",
+    "mvpFeatures": ["projetos", "status", "arquivos", "mensagens"],
+    "integrations": ["database", "storage", "email"],
+    "requiresAI": false,
+    "promptTemplate": "",
+    "coreEndpoints": ["POST /apps/client-portal/run", "GET /apps/client-portal"]
+  },
+  {
+    "id": 12,
+    "slug": "social-proof",
+    "name": "AI Social Proof Popup Widget",
+    "summary": "Widget com popups de prova social e copy otimizada.",
+    "mvpFeatures": ["capturar eventos", "renderizar popup", "templates", "copy otimizada"],
+    "integrations": ["ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Escreva 5 mensagens curtas de social proof para:\n{{input}}",
+    "coreEndpoints": ["POST /apps/social-proof/run", "GET /apps/social-proof"]
+  },
+  {
+    "id": 13,
+    "slug": "sub-box",
+    "name": "Subscription Box Toolkit",
+    "summary": "Gerencia assinaturas recorrentes para boxes de creators.",
+    "mvpFeatures": ["planos", "assinantes", "pagamento recorrente", "fulfillment status"],
+    "integrations": ["stripe", "database"],
+    "requiresAI": false,
+    "promptTemplate": "",
+    "coreEndpoints": ["POST /apps/sub-box/run", "GET /apps/sub-box"]
+  },
+  {
+    "id": 14,
+    "slug": "resume",
+    "name": "AI Resume/CV Optimizer",
+    "summary": "Otimiza currículo para uma vaga específica com score ATS.",
+    "mvpFeatures": ["input CV", "input vaga", "reescrita", "score"],
+    "integrations": ["ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Otimize este CV para a vaga abaixo e liste melhorias:\n{{input}}",
+    "coreEndpoints": ["POST /apps/resume/run", "GET /apps/resume"]
+  },
+  {
+    "id": 15,
+    "slug": "esg",
+    "name": "ESG Report Generator",
+    "summary": "Gera relatório ESG inicial a partir de questionário simplificado.",
+    "mvpFeatures": ["questionário", "diagnóstico", "recomendações", "PDF"],
+    "integrations": ["ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Gere um relatório ESG inicial com resumo executivo para:\n{{input}}",
+    "coreEndpoints": ["POST /apps/esg/run", "GET /apps/esg"]
+  },
+  {
+    "id": 16,
+    "slug": "podcast",
+    "name": "AI Podcast Show Notes + Clips",
+    "summary": "Gera show notes, highlights e rascunho de newsletter.",
+    "mvpFeatures": ["input transcrição", "show notes", "highlights", "newsletter"],
+    "integrations": ["deepgram", "ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Crie show notes e highlights deste episódio:\n{{input}}",
+    "coreEndpoints": ["POST /apps/podcast/run", "GET /apps/podcast"]
+  },
+  {
+    "id": 17,
+    "slug": "notion-blog",
+    "name": "Notion-to-Blog",
+    "summary": "Publica páginas do Notion como blog com SEO básico.",
+    "mvpFeatures": ["sync Notion", "render páginas", "seo tags", "custom domain"],
+    "integrations": ["notion", "database"],
+    "requiresAI": false,
+    "promptTemplate": "",
+    "coreEndpoints": ["POST /apps/notion-blog/run", "GET /apps/notion-blog"]
+  },
+  {
+    "id": 18,
+    "slug": "price-monitor",
+    "name": "AI Competitor Price Monitor",
+    "summary": "Monitora preços de concorrentes e sugere ajuste.",
+    "mvpFeatures": ["lista concorrentes", "coletar preço", "histórico", "sugestão"],
+    "integrations": ["scraper", "ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Com base nesses preços, sugira estratégia de ajuste:\n{{input}}",
+    "coreEndpoints": ["POST /apps/price-monitor/run", "GET /apps/price-monitor"]
+  },
+  {
+    "id": 19,
+    "slug": "uptime",
+    "name": "Uptime Monitor + Status Page",
+    "summary": "Monitora uptime e gera diagnóstico inicial de incidentes.",
+    "mvpFeatures": ["ping monitor", "incidentes", "status page", "diagnóstico"],
+    "integrations": ["monitoring", "ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Analise este incidente de uptime e proponha causa provável:\n{{input}}",
+    "coreEndpoints": ["POST /apps/uptime/run", "GET /apps/uptime"]
+  },
+  {
+    "id": 20,
+    "slug": "pitch-deck",
+    "name": "AI Pitch Deck Generator",
+    "summary": "Cria narrativa de pitch deck em blocos/slides.",
+    "mvpFeatures": ["formulário", "estrutura de slides", "copy", "export"],
+    "integrations": ["ai-gateway"],
+    "requiresAI": true,
+    "promptTemplate": "Crie um roteiro de pitch deck de startup em 10 slides para:\n{{input}}",
+    "coreEndpoints": ["POST /apps/pitch-deck/run", "GET /apps/pitch-deck"]
+  }
+]

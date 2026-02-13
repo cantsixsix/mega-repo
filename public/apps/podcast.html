@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Podcast Show Notes</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-podcast">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">🎙️</span>
+        <h1>Podcast Show Notes</h1>
+      </div>
+      <p class="app-subtitle">Gere show notes, highlights e newsletter de episódios</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <form id="appForm">
+          <div class="form-group">
+            <label for="input">Transcrição ou resumo do episódio</label>
+            <textarea id="input" rows="10" required placeholder="Ex: [00:00] Introdução e apresentação do guest [05:30] Discussão sobre tendências de IA no mercado [15:00] Cases de sucesso implementando machine learning [30:00] Perguntas da audiência [45:00] Encerramento
+
+Tema principal: Futuro da Inteligência Artificial em 2026
+Guest: Dr. João Silva, pesquisador de ML"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">🎙️</span>
+            Gerar Show Notes
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section hidden" id="outputSection">
+        <div class="output-header">
+          <h2>Show Notes</h2>
+          <button onclick="copyOutput()" class="btn-secondary">📋 Copiar</button>
+        </div>
+        
+        <div id="highlights" class="mb-20"></div>
+        <div id="output" class="output-content"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Gerando show notes...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('appForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('podcast', {
+          input: document.getElementById('input').value
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          document.getElementById('outputSection').classList.remove('hidden');
+          
+          // Highlights
+          if (data.highlights && data.highlights.length > 0) {
+            document.getElementById('highlights').innerHTML = `
+              <h3 class="section-title">💎 Highlights</h3>
+              ${data.highlights.map(h => `
+                <div class="list-item list-item-highlight">
+                  <p>"${h}"</p>
+                </div>
+              `).join('')}
+            `;
+          }
+          
+          const html = data.output.replace(/\n/g, '<br>');
+          document.getElementById('output').innerHTML = html;
+          document.getElementById('output').dataset.raw = data.output;
+        } else {
+          showAlert(data.error || 'Erro ao gerar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    function copyOutput() {
+      const text = document.getElementById('output').dataset.raw;
+      navigator.clipboard.writeText(text).then(() => showAlert('Copiado!'));
+    }
+  </script>
+</body>
+</html>

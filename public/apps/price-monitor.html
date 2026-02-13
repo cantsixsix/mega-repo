@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Monitor</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-price-monitor">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">💰</span>
+        <h1>Price Monitor</h1>
+      </div>
+      <p class="app-subtitle">Monitore preços de concorrentes e receba análises competitivas</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Adicionar Snapshot de Preços</h2>
+        <form id="priceForm">
+          <div id="priceInputs">
+            <div class="grid-2 price-row">
+              <div class="form-group">
+                <input type="text" class="competitor-name" placeholder="Nome do concorrente" required>
+              </div>
+              <div class="form-group">
+                <input type="number" class="competitor-price" placeholder="99.00" step="0.01" required>
+              </div>
+            </div>
+          </div>
+          
+          <button type="button" onclick="addPriceRow()" class="btn-secondary btn-block-spaced">
+            ➕ Adicionar Concorrente
+          </button>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">📊</span>
+            Salvar e Analisar
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section hidden" id="outputSection">
+        <div class="output-header">
+          <h2>Análise Competitiva</h2>
+        </div>
+        
+        <div id="stats" class="stats-grid mb-20"></div>
+        <div id="analysis" class="output-content"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Analisando preços...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    function addPriceRow() {
+      const container = document.getElementById('priceInputs');
+      const row = document.createElement('div');
+      row.className = 'grid-2 price-row';
+      row.innerHTML = `
+        <div class="form-group">
+          <input type="text" class="competitor-name" placeholder="Nome do concorrente" required>
+        </div>
+        <div class="form-group">
+          <input type="number" class="competitor-price" placeholder="99.00" step="0.01" required>
+        </div>
+      `;
+      container.appendChild(row);
+    }
+
+    document.getElementById('priceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const names = document.querySelectorAll('.competitor-name');
+        const prices = document.querySelectorAll('.competitor-price');
+        
+        const priceData = Array.from(names).map((nameInput, i) => ({
+          name: nameInput.value,
+          price: parseFloat(prices[i].value)
+        })).filter(p => p.name && p.price);
+        
+        const data = await apiCall('price-monitor', { prices: priceData });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          document.getElementById('outputSection').classList.remove('hidden');
+          
+          // Stats
+          if (data.latestPrices && data.latestPrices.length > 0) {
+            const priceValues = data.latestPrices.map(p => p.price);
+            const avg = (priceValues.reduce((a, b) => a + b, 0) / priceValues.length).toFixed(2);
+            const min = Math.min(...priceValues).toFixed(2);
+            const max = Math.max(...priceValues).toFixed(2);
+            
+            document.getElementById('stats').innerHTML = `
+              <div class="stat-card">
+                <span class="stat-value">$${avg}</span>
+                <span class="stat-label">Média</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">$${min}</span>
+                <span class="stat-label">Menor</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">$${max}</span>
+                <span class="stat-label">Maior</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">${data.priceHistory || 0}</span>
+                <span class="stat-label">Snapshots</span>
+              </div>
+            `;
+          }
+          
+          // Analysis
+          if (data.output) {
+            const html = data.output.replace(/\n/g, '<br>');
+            document.getElementById('analysis').innerHTML = html;
+          }
+          
+          showAlert('Análise concluída!');
+        } else {
+          showAlert(data.error || 'Erro ao analisar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    // Add 2 rows by default
+    addPriceRow();
+  </script>
+</body>
+</html>

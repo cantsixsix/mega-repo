@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio de 20 SaaS Apps</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="dashboard-page">
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>🚀 Portfolio de 20 SaaS Apps</h1>
+      <p>Escolha um app para começar</p>
+    </header>
+
+    <div class="dashboard-grid" id="apps"></div>
+
+    <footer class="dashboard-footer">
+      <p>Todos os apps estão funcionando • API em http://localhost:8790</p>
+    </footer>
+  </div>
+
+  <script>
+    const apps = [
+      { slug: 'resume', name: 'Gerador de Currículos', icon: '📄', desc: 'Currículos ATS-optimized', type: 'ai' },
+      { slug: 'esg', name: 'Calculadora ESG', icon: '🌱', desc: 'Métricas ESG para B2B', type: 'ai' },
+      { slug: 'pitch-deck', name: 'Pitch Deck', icon: '📊', desc: 'Presentations estruturadas', type: 'ai' },
+      { slug: 'cold-email', name: 'Cold Email', icon: '📧', desc: 'Emails com deliverability', type: 'ai' },
+      { slug: 'screenshot-to-code', name: 'Screenshot → Code', icon: '🖼️', desc: 'Imagem para React', type: 'ai' },
+      { slug: 'brand-kit', name: 'Brand Kit', icon: '🎨', desc: 'Identidade de marca', type: 'ai' },
+      { slug: 'proposals', name: 'Propostas', icon: '💼', desc: 'Propostas comerciais', type: 'ai' },
+      { slug: 'meeting-notes', name: 'Meeting Notes', icon: '📝', desc: 'Notas estruturadas', type: 'ai' },
+      { slug: 'waitlist', name: 'Waitlist', icon: '📋', desc: 'Waitlist com referral', type: 'crud' },
+      { slug: 'job-board', name: 'Job Board', icon: '💼', desc: 'Vagas e candidaturas', type: 'crud' },
+      { slug: 'client-portal', name: 'Portal do Cliente', icon: '👥', desc: 'Gestão de projetos', type: 'crud' },
+      { slug: 'sub-box', name: 'Assinaturas', icon: '💳', desc: 'Gestão de recorrência', type: 'crud' },
+      { slug: 'notion-blog', name: 'Blog CMS', icon: '✍️', desc: 'CMS com SEO', type: 'crud' },
+      { slug: 'testimonials', name: 'Testimonials', icon: '⭐', desc: 'Wall of Love', type: 'hybrid' },
+      { slug: 'analytics', name: 'Analytics', icon: '📈', desc: 'Tracking cookieless', type: 'hybrid' },
+      { slug: 'uptime', name: 'Uptime Monitor', icon: '🔍', desc: 'Monitoramento 24/7', type: 'hybrid' },
+      { slug: 'changelog', name: 'Changelog', icon: '📰', desc: 'Release notes', type: 'hybrid' },
+      { slug: 'podcast', name: 'Podcast Notes', icon: '🎙️', desc: 'Show notes + highlights', type: 'ai' },
+      { slug: 'social-proof', name: 'Social Proof', icon: '🔔', desc: 'Popups de conversão', type: 'ai' },
+      { slug: 'price-monitor', name: 'Price Monitor', icon: '💰', desc: 'Análise competitiva', type: 'ai' }
+    ];
+
+    const grid = document.getElementById('apps');
+    apps.forEach(app => {
+      const card = document.createElement('a');
+      card.className = 'dashboard-card';
+      card.href = `/apps/${app.slug}`;
+      card.innerHTML = `
+        <span class="card-icon">${app.icon}</span>
+        <h3>${app.name}</h3>
+        <p>${app.desc}</p>
+        <span class="dashboard-badge dashboard-badge-${app.type}">${app.type.toUpperCase()}</span>
+      `;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

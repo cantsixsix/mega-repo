@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrandForge — Identidade Visual com IA</title>
+  <link rel="stylesheet" href="/styles/app.css">
+  <style>
+    :root{--bk-pink:#ec4899;--bk-pink-light:#f472b6;--bk-pink-dark:#db2777;--bk-bg:#fdf2f8;--bk-surface:#fff;--bk-text:#1e293b;--bk-muted:#64748b;--bk-border:rgba(236,72,153,.12);--bk-grad:linear-gradient(135deg,#ec4899,#f43f5e)}
+    body.app-brand-kit{background:var(--bk-bg);color:var(--bk-text)}
+
+    .bk-nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);background:rgba(255,255,255,.88);border-bottom:1px solid var(--bk-border);padding:0 24px}
+    .bk-nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .bk-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--bk-text)}
+    .bk-logo-icon{font-size:1.7rem}
+    .bk-logo-text{font-weight:800;font-size:1.25rem;letter-spacing:-.02em}
+    .bk-logo-text span{color:var(--bk-pink)}
+    .bk-nav-links{display:flex;gap:24px;align-items:center}
+    .bk-nav-links a{color:var(--bk-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+    .bk-nav-links a:hover{color:var(--bk-pink)}
+    .bk-nav-cta{background:var(--bk-pink)!important;color:#fff!important;padding:8px 20px!important;border-radius:8px!important;font-weight:600!important}
+    .bk-nav-back{color:#94a3b8!important;font-size:13px!important}
+
+    .bk-hero{text-align:center;padding:90px 24px 70px;position:relative;overflow:hidden}
+    .bk-hero::before{content:'';position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(236,72,153,.1) 0%,transparent 70%);pointer-events:none}
+    .bk-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);color:var(--bk-pink-dark);padding:6px 16px;border-radius:30px;font-size:13px;font-weight:600;margin-bottom:24px}
+    .bk-hero h1{font-size:clamp(2.4rem,5.5vw,4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin:0 auto 18px}
+    .bk-hero h1 .bk-grad{background:var(--bk-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .bk-hero-sub{font-size:1.15rem;color:var(--bk-muted);max-width:520px;margin:0 auto 36px;line-height:1.7}
+    .bk-hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+    .bk-btn-pink{background:var(--bk-pink);color:#fff;padding:14px 32px;border-radius:12px;font-weight:700;font-size:16px;border:none;cursor:pointer;transition:all .25s;font-family:var(--font);box-shadow:0 4px 20px rgba(236,72,153,.3);text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+    .bk-btn-pink:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(236,72,153,.4)}
+    .bk-btn-outline{background:transparent;color:var(--bk-muted);padding:14px 32px;border-radius:12px;font-weight:600;font-size:16px;border:1px solid rgba(0,0,0,.1);cursor:pointer;transition:all .25s;font-family:var(--font);text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+    .bk-btn-outline:hover{border-color:var(--bk-pink);color:var(--bk-pink)}
+    .bk-hero-proof{display:flex;justify-content:center;gap:40px;margin-top:48px;padding-top:28px;border-top:1px solid var(--bk-border);flex-wrap:wrap}
+    .bk-proof-item{text-align:center}
+    .bk-proof-value{font-size:1.7rem;font-weight:800;color:var(--bk-text);display:block}
+    .bk-proof-label{font-size:13px;color:var(--bk-muted)}
+
+    .bk-section{max-width:1200px;margin:0 auto;padding:70px 24px}
+    .bk-section-header{text-align:center;margin-bottom:48px}
+    .bk-section-tag{display:inline-block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--bk-pink);margin-bottom:10px}
+    .bk-section-header h2{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+    .bk-section-header p{color:var(--bk-muted);font-size:1.05rem;max-width:520px;margin:0 auto}
+
+    .bk-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+    .bk-feature{background:var(--bk-surface);border:1px solid var(--bk-border);border-radius:16px;padding:28px 24px;transition:all .3s}
+    .bk-feature:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(236,72,153,.08);border-color:rgba(236,72,153,.25)}
+    .bk-feature-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:16px}
+    .bk-fi-pink{background:rgba(236,72,153,.08)}
+    .bk-fi-purple{background:rgba(139,92,246,.08)}
+    .bk-fi-orange{background:rgba(249,115,22,.08)}
+    .bk-fi-blue{background:rgba(59,130,246,.08)}
+    .bk-feature h3{font-size:1.05rem;font-weight:700;margin-bottom:6px}
+    .bk-feature p{color:var(--bk-muted);font-size:.9rem;line-height:1.6}
+
+    .bk-demo-section{background:linear-gradient(180deg,var(--bk-bg) 0%,#fce7f3 100%);border-top:1px solid var(--bk-border);border-bottom:1px solid var(--bk-border);padding:70px 24px}
+    .bk-demo-wrap{max-width:900px;margin:0 auto}
+    .bk-browser{background:var(--bk-surface);border-radius:16px;border:1px solid var(--bk-border);overflow:hidden;box-shadow:0 25px 60px rgba(236,72,153,.1)}
+    .bk-toolbar{display:flex;align-items:center;gap:8px;padding:14px 20px;background:rgba(0,0,0,.02);border-bottom:1px solid var(--bk-border)}
+    .bk-dot{width:12px;height:12px;border-radius:50%}
+    .bk-dot-r{background:#ef4444}.bk-dot-y{background:#f59e0b}.bk-dot-g{background:#22c55e}
+    .bk-toolbar-url{flex:1;text-align:center;font-size:12px;color:var(--bk-muted);background:rgba(0,0,0,.03);padding:6px 16px;border-radius:6px;margin-left:12px}
+    .bk-browser-body{padding:28px}
+
+    .bk-form-area label{font-weight:600;color:var(--bk-text);margin-bottom:6px;display:block;font-size:14px}
+    .bk-form-area textarea{width:100%;padding:14px;border:1px solid var(--bk-border);border-radius:10px;font-family:var(--font);font-size:14px;resize:vertical;min-height:100px;transition:border-color .2s}
+    .bk-form-area textarea:focus{outline:none;border-color:var(--bk-pink);box-shadow:0 0 0 3px rgba(236,72,153,.1)}
+    .bk-output{margin-top:24px}
+    .bk-output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .bk-output-content{background:rgba(236,72,153,.03);border:1px solid var(--bk-border);border-radius:12px;padding:24px;line-height:1.8;font-size:14px;color:var(--bk-text)}
+    .bk-palette-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+    .bk-swatch{width:56px;height:56px;border-radius:12px;border:2px solid rgba(0,0,0,.06);cursor:pointer;transition:transform .2s;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .bk-swatch:hover{transform:scale(1.15)}
+    .bk-btn-sm{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--bk-border);background:var(--bk-surface);color:var(--bk-muted);cursor:pointer;transition:all .2s;font-family:var(--font)}
+    .bk-btn-sm:hover{border-color:var(--bk-pink);color:var(--bk-pink)}
+
+    .bk-compare{background:var(--bk-surface);border:1px solid var(--bk-border);border-radius:16px;overflow:hidden;max-width:900px;margin:0 auto}
+    .bk-compare table{width:100%;border-collapse:collapse}
+    .bk-compare th{padding:14px 18px;text-align:left;font-size:13px;font-weight:600;color:var(--bk-muted);background:rgba(0,0,0,.02);border-bottom:1px solid var(--bk-border)}
+    .bk-compare th:first-child{width:38%}
+    .bk-compare th:not(:first-child){text-align:center}
+    .bk-compare th.bk-th-us{color:var(--bk-pink)}
+    .bk-compare td{padding:12px 18px;font-size:14px;border-bottom:1px solid rgba(0,0,0,.03)}
+    .bk-compare td:not(:first-child){text-align:center}
+    .bk-check{color:var(--bk-pink);font-weight:700}
+    .bk-cross{color:#cbd5e1}
+
+    .bk-pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;max-width:940px;margin:0 auto}
+    .bk-price-card{background:var(--bk-surface);border:1px solid var(--bk-border);border-radius:16px;padding:34px 26px;text-align:center;transition:all .3s}
+    .bk-price-card.popular{border-color:var(--bk-pink);position:relative;box-shadow:0 8px 40px rgba(236,72,153,.1)}
+    .bk-price-card.popular::before{content:'Mais Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--bk-pink);color:#fff;padding:4px 18px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
+    .bk-price-name{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+    .bk-price-amount{font-size:2.6rem;font-weight:800;margin-bottom:4px}
+    .bk-price-amount span{font-size:1rem;font-weight:500;color:var(--bk-muted)}
+    .bk-price-desc{color:var(--bk-muted);font-size:.88rem;margin-bottom:22px}
+    .bk-price-features{list-style:none;text-align:left;margin-bottom:24px;padding:0}
+    .bk-price-features li{padding:7px 0;font-size:14px;color:var(--bk-text);display:flex;gap:10px;align-items:center}
+    .bk-price-features li::before{content:'✓';color:var(--bk-pink);font-weight:700;width:18px;height:18px;border-radius:50%;background:rgba(236,72,153,.08);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+
+    .bk-cta{text-align:center;padding:90px 24px;position:relative}
+    .bk-cta::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:500px;height:350px;background:radial-gradient(circle,rgba(236,72,153,.08) 0%,transparent 70%);pointer-events:none}
+    .bk-cta h2{font-size:clamp(2rem,4vw,2.8rem);font-weight:800;margin-bottom:14px}
+    .bk-cta p{color:var(--bk-muted);font-size:1.1rem;margin-bottom:32px}
+
+    .bk-footer{padding:28px 24px;border-top:1px solid var(--bk-border);text-align:center}
+    .bk-footer p{color:var(--bk-muted);font-size:13px}
+    .bk-footer a{color:var(--bk-muted);text-decoration:none}
+    .bk-footer a:hover{color:var(--bk-pink)}
+
+    @media(max-width:768px){.bk-hero{padding:60px 20px 50px}.bk-hero h1{font-size:2rem}.bk-nav-links a:not(.bk-nav-cta):not(.bk-nav-back){display:none}.bk-hero-proof{gap:20px}}
+  </style>
+</head>
+<body class="app-page app-brand-kit">
+  <nav class="bk-nav">
+    <div class="bk-nav-inner">
+      <a href="/" class="bk-logo"><span class="bk-logo-icon">🎨</span><span class="bk-logo-text">Brand<span>Forge</span></span></a>
+      <div class="bk-nav-links">
+        <a href="/" class="bk-nav-back">← Voltar</a>
+        <a href="#features">Features</a>
+        <a href="#demo">Demo</a>
+        <a href="#pricing">Preços</a>
+        <a href="#demo" class="bk-nav-cta">Criar Brand Kit</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="bk-hero">
+    <div class="bk-badge">🎨 AI-Powered · 30 segundos · Paleta completa</div>
+    <h1>Identidade visual<br>em <span class="bk-grad">30 segundos</span></h1>
+    <p class="bk-hero-sub">Descreva seu negócio e a IA gera logo concepts, paleta de cores, tipografia e guia de marca completo.</p>
+    <div class="bk-hero-actions">
+      <a href="#demo" class="bk-btn-pink">🚀 Criar Brand Kit Grátis</a>
+      <a href="#features" class="bk-btn-outline">✨ Ver Features</a>
+    </div>
+    <div class="bk-hero-proof">
+      <div class="bk-proof-item"><span class="bk-proof-value">30s</span><span class="bk-proof-label">Tempo médio</span></div>
+      <div class="bk-proof-item"><span class="bk-proof-value">AI</span><span class="bk-proof-label">Powered by GPT</span></div>
+      <div class="bk-proof-item"><span class="bk-proof-value">∞</span><span class="bk-proof-label">Variações</span></div>
+      <div class="bk-proof-item"><span class="bk-proof-value">PDF</span><span class="bk-proof-label">Export ready</span></div>
+    </div>
+  </section>
+
+  <section class="bk-section" id="features">
+    <div class="bk-section-header">
+      <span class="bk-section-tag">Features</span>
+      <h2>Tudo para sua marca, em um clique</h2>
+      <p>Da paleta de cores ao brand voice, a IA cria tudo automaticamente.</p>
+    </div>
+    <div class="bk-features">
+      <div class="bk-feature"><div class="bk-feature-icon bk-fi-pink">🎨</div><h3>Paleta de Cores</h3><p>Combinações harmônicas geradas por IA com base na psicologia das cores do seu nicho.</p></div>
+      <div class="bk-feature"><div class="bk-feature-icon bk-fi-purple">🔤</div><h3>Tipografia</h3><p>Sugestões de fontes que combinam com a personalidade da sua marca e público-alvo.</p></div>
+      <div class="bk-feature"><div class="bk-feature-icon bk-fi-orange">✏️</div><h3>Logo Concepts</h3><p>Descrições detalhadas para criar logos que transmitem a essência do seu negócio.</p></div>
+      <div class="bk-feature"><div class="bk-feature-icon bk-fi-blue">🗣️</div><h3>Brand Voice</h3><p>Tom de comunicação, pilares da marca e guia de linguagem personalizado.</p></div>
+      <div class="bk-feature"><div class="bk-feature-icon bk-fi-pink">📐</div><h3>Visual Guidelines</h3><p>Regras de uso do logo, espaçamentos, aplicações em diferentes fundos.</p></div>
+      <div class="bk-feature"><div class="bk-feature-icon bk-fi-purple">📦</div><h3>Export Completo</h3><p>Copie o brand kit completo ou exporte em formato pronto para designers.</p></div>
+    </div>
+  </section>
+
+  <section class="bk-demo-section" id="demo">
+    <div class="bk-demo-wrap">
+      <div class="bk-section-header">
+        <span class="bk-section-tag">Demo ao vivo</span>
+        <h2>Teste agora — é grátis</h2>
+        <p>Descreva seu negócio e veja a mágica acontecer.</p>
+      </div>
+      <div class="bk-browser">
+        <div class="bk-toolbar">
+          <span class="bk-dot bk-dot-r"></span><span class="bk-dot bk-dot-y"></span><span class="bk-dot bk-dot-g"></span>
+          <span class="bk-toolbar-url">app.brandforge.io/generate</span>
+        </div>
+        <div class="bk-browser-body">
+          <div class="bk-form-area">
+            <form id="appForm">
+              <label for="input">Descreva seu negócio</label>
+              <textarea id="input" rows="5" required placeholder="Ex: Fintech moderna focada em empréstimos para PMEs. Queremos transmitir confiança, tecnologia e acessibilidade. Público: Empreendedores 30-50 anos."></textarea>
+              <div style="margin-top:16px">
+                <button type="submit" class="bk-btn-pink" style="width:100%;justify-content:center">✨ Gerar Brand Kit com IA</button>
+              </div>
+            </form>
+          </div>
+          <div class="bk-output hidden" id="outputSection">
+            <div class="bk-output-header">
+              <h3 style="font-weight:700;font-size:1.1rem">🎨 Seu Brand Kit</h3>
+              <button onclick="copyOutput()" class="bk-btn-sm">📋 Copiar</button>
+            </div>
+            <div class="bk-output-content" id="output"></div>
+            <div class="bk-palette-row" id="paletteRow"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bk-section" id="compare">
+    <div class="bk-section-header">
+      <span class="bk-section-tag">Comparação</span>
+      <h2>BrandForge vs. alternativas tradicionais</h2>
+      <p>Resultados em segundos, não semanas.</p>
+    </div>
+    <div class="bk-compare">
+      <table>
+        <thead><tr><th>Feature</th><th class="bk-th-us">BrandForge</th><th>Canva</th><th>99designs</th><th>Agência</th></tr></thead>
+        <tbody>
+          <tr><td>Tempo de entrega</td><td><span class="bk-check">30 segundos</span></td><td>Horas</td><td>Dias</td><td>Semanas</td></tr>
+          <tr><td>AI-powered</td><td><span class="bk-check">✓</span></td><td><span class="bk-cross">✗</span></td><td><span class="bk-cross">✗</span></td><td><span class="bk-cross">✗</span></td></tr>
+          <tr><td>Paleta + Tipografia</td><td><span class="bk-check">✓</span></td><td><span class="bk-check">✓</span></td><td><span class="bk-check">✓</span></td><td><span class="bk-check">✓</span></td></tr>
+          <tr><td>Brand Voice incluído</td><td><span class="bk-check">✓</span></td><td><span class="bk-cross">✗</span></td><td><span class="bk-cross">✗</span></td><td>Extra</td></tr>
+          <tr><td>Preço</td><td><span class="bk-check">$19/mês</span></td><td>$13/mês</td><td>$299+</td><td>$2000+</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="bk-section" id="pricing">
+    <div class="bk-section-header">
+      <span class="bk-section-tag">Preços</span>
+      <h2>Simples e justo</h2>
+      <p>Comece grátis, upgrade quando precisar.</p>
+    </div>
+    <div class="bk-pricing">
+      <div class="bk-price-card">
+        <div class="bk-price-name">Free</div>
+        <div class="bk-price-amount">$0<span>/mês</span></div>
+        <div class="bk-price-desc">Para testar a plataforma</div>
+        <ul class="bk-price-features"><li>3 brand kits/mês</li><li>Paleta básica</li><li>Copiar texto</li></ul>
+        <a href="#demo" class="bk-btn-outline" style="width:100%;justify-content:center">Começar Grátis</a>
+      </div>
+      <div class="bk-price-card popular">
+        <div class="bk-price-name">Pro</div>
+        <div class="bk-price-amount">$19<span>/mês</span></div>
+        <div class="bk-price-desc">Para founders e startups</div>
+        <ul class="bk-price-features"><li>Brand kits ilimitados</li><li>Paleta + Tipografia</li><li>Brand Voice completo</li><li>Export PDF</li><li>Variações ilimitadas</li></ul>
+        <button class="bk-btn-pink" style="width:100%;justify-content:center">Assinar Pro</button>
+      </div>
+      <div class="bk-price-card">
+        <div class="bk-price-name">Agency</div>
+        <div class="bk-price-amount">$49<span>/mês</span></div>
+        <div class="bk-price-desc">Para agências e equipes</div>
+        <ul class="bk-price-features"><li>Tudo do Pro</li><li>White-label</li><li>API access</li><li>Múltiplos usuários</li><li>Suporte prioritário</li></ul>
+        <button class="bk-btn-outline" style="width:100%;justify-content:center">Falar com Vendas</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bk-cta">
+    <h2>Pronto para criar sua marca?</h2>
+    <p>Comece em 30 segundos. Sem cartão de crédito.</p>
+    <a href="#demo" class="bk-btn-pink">🎨 Criar Brand Kit Grátis</a>
+  </section>
+
+  <footer class="bk-footer"><p>BrandForge · Built with ❤️ · <a href="/">Voltar ao Portfolio</a></p></footer>
+
+  <div id="loading" class="loading hidden"><div class="spinner"></div><p>Gerando sua identidade de marca...</p></div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('appForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      try {
+        const data = await apiCall('brand-kit', { input: document.getElementById('input').value });
+        hideLoading();
+        if (data.ok) {
+          document.getElementById('outputSection').classList.remove('hidden');
+          let html = data.output.replace(/\n/g, '<br>');
+          document.getElementById('output').innerHTML = html;
+          document.getElementById('output').dataset.raw = data.output;
+          if (data.palette) {
+            document.getElementById('paletteRow').innerHTML = data.palette.map(color =>
+              `<div class="bk-swatch" style="background:${color}" title="${color}" onclick="navigator.clipboard.writeText('${color}').then(()=>showAlert('${color} copiado!'))"></div>`
+            ).join('');
+          }
+        } else {
+          showAlert(data.error || 'Erro ao gerar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+    function copyOutput() {
+      const text = document.getElementById('output').dataset.raw;
+      navigator.clipboard.writeText(text).then(() => showAlert('Copiado!'));
+    }
+  </script>
+</body>
+</html>

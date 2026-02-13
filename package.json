@@ -1,0 +1,16 @@
+{
+  "name": "startup-portfolio-20-apps",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev:gateway": "npm --workspace services/ai-gateway run dev",
+    "start:gateway": "npm --workspace services/ai-gateway run start",
+    "dev:hub": "npm --workspace services/app-hub run dev",
+    "start:hub": "npm --workspace services/app-hub run start"
+  }
+}

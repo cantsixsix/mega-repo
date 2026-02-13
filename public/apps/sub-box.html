@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription Manager</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-sub-box">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">💳</span>
+        <h1>Subscription Manager</h1>
+      </div>
+      <p class="app-subtitle">Gerencie planos de assinatura e subscribers</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <h2>Criar Plano</h2>
+        <form id="planForm">
+          <div class="form-group">
+            <label for="name">Nome do Plano *</label>
+            <input type="text" id="name" required placeholder="Ex: Premium">
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Descrição</label>
+            <input type="text" id="description" placeholder="Recursos inclusos">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="price">Preço (R$) *</label>
+              <input type="number" id="price" step="0.01" required placeholder="99.90">
+            </div>
+
+            <div class="form-group">
+              <label for="interval">Intervalo</label>
+              <select id="interval">
+                <option value="monthly">Mensal</option>
+                <option value="quarterly">Trimestral</option>
+                <option value="yearly">Anual</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">➕</span>
+            Criar Plano
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section">
+        <div class="output-header">
+          <h2>Planos Ativos</h2>
+          <button onclick="loadPlans()" class="btn-secondary">🔄 Atualizar</button>
+        </div>
+        <div id="plansList"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('planForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('sub-box', {
+          action: 'create-plan',
+          plan: {
+            name: document.getElementById('name').value,
+            description: document.getElementById('description').value,
+            price: parseFloat(document.getElementById('price').value),
+            interval: document.getElementById('interval').value
+          }
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Plano criado!');
+          document.getElementById('planForm').reset();
+          loadPlans();
+        } else {
+          showAlert(data.error || 'Erro', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    async function loadPlans() {
+      showLoading();
+      try {
+        const data = await apiCall('sub-box', { action: 'list-plans' });
+        hideLoading();
+        
+        if (data.ok && data.plans.length > 0) {
+          document.getElementById('plansList').innerHTML = data.plans.map(plan => `
+            <div class="list-item">
+              <div class="row-between mb-20">
+                <div>
+                  <h4>${plan.name}</h4>
+                  <p class="muted">${plan.description || 'Sem descrição'}</p>
+                  <p>
+                    <strong class="price-value">R$ ${plan.price.toFixed(2)}</strong>
+                    <span class="muted"> / ${plan.interval}</span>
+                  </p>
+                </div>
+                <span class="badge badge-success">Ativo</span>
+              </div>
+              <button onclick="subscribe('${plan.id}')" class="btn-secondary">
+                ➕ Adicionar Subscriber
+              </button>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('plansList').innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">💳</div>
+              <p>Nenhum plano criado</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro ao carregar', 'error');
+      }
+    }
+
+    async function subscribe(planId) {
+      const name = prompt('Nome do subscriber:');
+      const email = prompt('E-mail:');
+      if (!name || !email) return;
+
+      showLoading();
+      try {
+        const data = await apiCall('sub-box', {
+          action: 'subscribe',
+          planId,
+          subscriber: { name, email }
+        });
+        hideLoading();
+        
+        if (data.ok) {
+          showAlert('Subscriber adicionado!');
+        } else {
+          showAlert('Erro', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    }
+
+    loadPlans();
+  </script>
+</body>
+</html>

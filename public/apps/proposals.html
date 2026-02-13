@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposal Generator</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body class="app-page app-proposals">
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <div class="app-title">
+        <span class="app-icon">💼</span>
+        <h1>Proposal Generator</h1>
+      </div>
+      <p class="app-subtitle">Gere propostas comerciais profissionais para freelancers</p>
+    </header>
+
+    <main class="app-main">
+      <div class="input-section">
+        <form id="appForm">
+          <div class="form-group">
+            <label for="input">Informações do projeto</label>
+            <textarea id="input" rows="8" required placeholder="Ex: Cliente: E-commerce de moda. Projeto: Redesign completo do site. Escopo: Homepage, catálogo de produtos, checkout. Prazo: 8 semanas. Investimento: R$ 25.000. Tecnologia: React/Next.js. Entregas: 3 milestones (design, desenvolvimento, testes)."></textarea>
+          </div>
+          <button type="submit" class="btn-primary">
+            <span class="btn-icon">📄</span>
+            Gerar Proposta
+          </button>
+        </form>
+      </div>
+
+      <div class="output-section hidden" id="outputSection">
+        <div class="output-header">
+          <h2>Sua Proposta</h2>
+          <button onclick="copyOutput()" class="btn-secondary">📋 Copiar</button>
+        </div>
+        <div id="output" class="output-content output-content-spaced output-rich"></div>
+      </div>
+    </main>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Gerando proposta...</p>
+    </div>
+  </div>
+
+  <script src="/scripts/app.js"></script>
+  <script>
+    document.getElementById('appForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showLoading();
+      
+      try {
+        const data = await apiCall('proposals', {
+          input: document.getElementById('input').value
+        });
+        
+        hideLoading();
+        
+        if (data.ok) {
+          document.getElementById('outputSection').classList.remove('hidden');
+          const html = data.output
+            .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+          
+          document.getElementById('output').innerHTML = html;
+          document.getElementById('output').dataset.raw = data.output;
+        } else {
+          showAlert(data.error || 'Erro ao gerar', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showAlert('Erro de conexão', 'error');
+      }
+    });
+
+    function copyOutput() {
+      const text = document.getElementById('output').dataset.raw;
+      navigator.clipboard.writeText(text).then(() => showAlert('Copiado!'));
+    }
+  </script>
+</body>
+</html>
