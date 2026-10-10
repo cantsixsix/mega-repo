@@ -15,3 +15,28 @@ O que sustenta todas as ideias. Cada parte pode virar produto:
 - **X1.e Kit de MVP** — `createApp` + `memoryStore` + `idGenerator`: template para subir um micro-SaaS em 1 dia.
 
 A vitrine que usa esta plataforma é a ideia **X2**, no repo `startup-portfolio-20apps`.
+
+<!-- validacao:inicio -->
+
+## 🧪 Como validar
+
+Teste de 7 dias. Resultados vão na [Bancada de Ideias](https://claude.ai/artifact/Y4H9MCxyvwwLDmhL812znj).
+
+### X1 · Mega Repo — plataforma
+
+**Em uma frase:** A base técnica que deixa você lançar um micro-SaaS de IA em um dia.
+
+- **Problema:** Cada ideia nova recomeça do zero: servidor, chamada de IA, banco, PDF.
+- **Para quem:** Você mesmo primeiro; depois devs indie que querem lançar rápido.
+- **Como funciona:** Uma central de IA que troca de provedor sem mexer no app, um hub que roda mini-apps e peças prontas (PDF, widget).
+- **Como ganha dinheiro:** Uso interno; depois template pago (R$ 197) para outros devs.
+
+| Teste | |
+|---|---|
+| Tipo | Colocar pessoas usando |
+| Página | https://validar-ideias.netlify.app/x1/ |
+| Onde divulgar | Usar para lançar as landings das ideias A1–A14; depois mostrar no Twitter/X |
+| Preço testado | R$ 197 (template) |
+| Meta em 7 dias | **Lançar 3 ideias com ela em 1 semana** |
+
+<!-- validacao:fim -->
